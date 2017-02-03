@@ -81,10 +81,7 @@ entries in a request.
 | get | 1.768185 | 2.171163 | 3.31087833333 | 5.640741 | 10.9224743333 | 24.0813563333 | 55.6608143333 | 149.439873 | 490.498112333 | 1818.744884 | 6598.24484633 | 26037.3821507 |
 | delete | 22.651006 | 38.064887 | 29.2917696667 | 15.553244 | 20.807633 | 29.351339 | 38.4092673333 | 49.784648 | 108.831738333 | 373.296678 | 1397.51568633 | 5476.05380733 |
  
+It is observable that performance of getting leaves is deteriorating fastest
+while setting is most stable operation and delete is in
+between.
 ![TestImg](/res/img/sysrepo_remote_perf_1.png)
-
-| Command | Description |
-| --- | --- |
-| git status | List all new or modified files |
-| git diff | Show file differences that haven't been staged |
-
