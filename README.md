@@ -74,6 +74,8 @@ Tests were run few times each for combination of every operation and number of
 entries in a request.
 
 ### Measures average amount of time for given number of entries and operation  processed in a single request
+operation | number of entries | ms
+--------- | ----------------- | --
 delete 	1 	22.651006
 delete 	2 	38.064887
 delete 	4 	29.2917696667
