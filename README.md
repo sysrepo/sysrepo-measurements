@@ -35,4 +35,4 @@ Memory: 15G
 
 Sysrepo was running on a local Docker container. It could also be useful to test it on a device and remotely. 
 
-![TestImg](/res/img/sysrepo-remote-perf_1.png)
+![TestImg](/res/img/sysrepo_remote_perf_1.png)
