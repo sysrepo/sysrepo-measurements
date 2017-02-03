@@ -114,3 +114,9 @@ set 	1024 	454.813572
 set 	2048 	1420.526593
 
 ![TestImg](/res/img/sysrepo_remote_perf_1.png)
+
+| Command | Description |
+| --- | --- |
+| git status | List all new or modified files |
+| git diff | Show file differences that haven't been staged |
+
