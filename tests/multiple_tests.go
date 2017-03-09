@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"sync"
@@ -31,21 +32,65 @@ func cleanDatastore() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer s.Close()
 
 	_, err = s.Exec(netconf.RawMethod(xml))
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		fmt.Printf("delete data ERROR: %s\n", err)
+	}
+}
+
+func fillDatastore(numberOfItems int) {
+	counter = numberOfItems
+
+	if numberOfItems == 0 {
+		return
+	}
+
+	leftXML := `
+<edit-config>
+	<target><running/></target>
+	<config xmlns:op="urn:ietf:params:xml:ns:netconf:base:1.0">
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">`
+
+	middleXML := `
+			<interface op:operation="create">
+				<name>ethernet_%d</name>
+				<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+			</interface>`
+
+	rightXML := `
+		</interfaces>
+	</config>
+</edit-config>`
+
+	var buffer bytes.Buffer
+
+	buffer.Write([]byte(leftXML))
+	for i := 0; i < numberOfItems; i++ {
+		buffer.Write([]byte(fmt.Sprintf(middleXML, i)))
+	}
+	buffer.Write([]byte(rightXML))
+
+	s, err := netconf.DialSSH(hostAddr, netconf.SSHConfigPassword(user, passwd))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer s.Close()
+
+	_, err = s.Exec(netconf.RawMethod(buffer.String()))
+	if err != nil {
+		fmt.Printf("init data ERROR: %s\n", err)
 	}
 }
 
 func setTests(s *netconf.Session, wg *sync.WaitGroup, limit int) {
-
 	setXML := `
 <edit-config>
 	<target><running/></target>
 	<config xmlns:op="urn:ietf:params:xml:ns:netconf:base:1.0">
 		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-			<interface op:operation="create">
+			<interface>
 				<name>ethernet_%d</name>
 				<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
 			</interface>
@@ -67,7 +112,7 @@ func setTests(s *netconf.Session, wg *sync.WaitGroup, limit int) {
 
 		_, err := s.Exec(netconf.RawMethod(xml))
 		if err != nil {
-			fmt.Printf("ERROR: %s\n", err)
+			fmt.Printf("set item ERROR: %s\n", err)
 		}
 	}
 
@@ -96,28 +141,33 @@ func closeSessions(sessions []*netconf.Session) {
 }
 
 func main() {
-	sessions := []int{1, 2, 4}
-	limits := []int{10, 20, 40}
+	sessions := []int{1, 4}
+	elements := []int{10, 100}
+	existingItems := []int{0, 1000}
 
 	var wg sync.WaitGroup
 	counter = 0
 
-	for _, numberOfSessions := range sessions {
-		sess := getSessions(numberOfSessions)
-		fmt.Printf("\n\n\t\tset check, with  %d connections", numberOfSessions)
-		fmt.Printf("\n%-32s| %-15s | %-10s\n", "Operation", "number of items", "total time")
-		fmt.Printf("-------------------------------------------------------------------\n")
-		for _, limit := range limits {
-			cleanDatastore()
-			start := time.Now()
-			for _, s := range sess {
-				wg.Add(1)
-				go setTests(s, &wg, limit)
+	for _, existingItem := range existingItems {
+		for _, numberOfSessions := range sessions {
+			fmt.Printf("\n\n\tset itm with  %d connections and %d existing items", numberOfSessions, existingItem)
+			fmt.Printf("\n%-32s| %-15s | %-10s\n", "Operation", "number of items", "total time")
+			fmt.Printf("-------------------------------------------------------------------\n")
+			for _, element := range elements {
+				cleanDatastore()
+				fillDatastore(existingItem)
+				sess := getSessions(numberOfSessions)
+				defer closeSessions(sess)
+
+				start := time.Now()
+				for _, s := range sess {
+					wg.Add(1)
+					go setTests(s, &wg, element+counter)
+				}
+				wg.Wait()
+				elapsed := time.Since(start)
+				fmt.Printf("%-32s| %-15d | %-10s\n", "set", element, elapsed)
 			}
-			wg.Wait()
-			elapsed := time.Since(start)
-			fmt.Printf("%-32s| %-15d | %-10s\n", "set", limit, elapsed)
 		}
-		closeSessions(sess)
 	}
 }
