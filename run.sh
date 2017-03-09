@@ -12,6 +12,7 @@ sleep 2
 
 printf "\n############# start the tests #############\n"
 go run ./tests/simple_tests.go
+go run ./tests/multiple_tests.go
 
 printf "\n############# exit #############\n"
 docker stop sysrepo
