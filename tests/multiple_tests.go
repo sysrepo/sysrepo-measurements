@@ -90,7 +90,7 @@ func setTests(s *netconf.Session, wg *sync.WaitGroup, limit int) {
 	<target><running/></target>
 	<config xmlns:op="urn:ietf:params:xml:ns:netconf:base:1.0">
 		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-			<interface>
+			<interface op:operation="create">
 				<name>ethernet_%d</name>
 				<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
 			</interface>
@@ -150,7 +150,7 @@ func main() {
 
 	for _, existingItem := range existingItems {
 		for _, numberOfSessions := range sessions {
-			fmt.Printf("\n\n\tset itm with  %d connections and %d existing items", numberOfSessions, existingItem)
+			fmt.Printf("\n\n\tset item with  %d connections and %d existing items", numberOfSessions, existingItem)
 			fmt.Printf("\n%-32s| %-15s | %-10s\n", "Operation", "number of items", "total time")
 			fmt.Printf("-------------------------------------------------------------------\n")
 			for _, element := range elements {
