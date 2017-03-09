@@ -5,8 +5,6 @@ This project is about implementing and describing some tests and measurement con
 Adapted example program from Sysrepo examples is used. Printouts on module
 changes are removed not to interfere with basic time consumption.
 
-Sysrepo was running on a local Docker container. It could also be useful to test it on a device and remotely.
-
 Processor information:
 * Architecture:          x86_64
 * CPU op-mode(s):        32-bit, 64-bit
