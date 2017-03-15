@@ -3,7 +3,7 @@
 docker pull sysrepo/sysrepo-netopeer2:devel
 
 pwd_dir=$(pwd)
-docker run -d -v $pwd_dir/docker:/opt/docker -p 10830:830 --name sysrepo --rm sysrepo/sysrepo-netopeer2:devel
+docker run -d -v $pwd_dir/docker:/opt/docker -p 10830:830 --name sysrepo sysrepo/sysrepo-netopeer2:devel
 docker exec -d sysrepo bash -c /opt/docker/docker_entry_point.sh
 
 # wait for sysrepo and netopeer-server to start inside docker
