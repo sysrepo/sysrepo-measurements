@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -141,18 +143,28 @@ func closeSessions(sessions []*netconf.Session) {
 }
 
 func main() {
-	sessions := []int{1, 4}
-	elements := []int{10, 100}
-	existingItems := []int{0, 1000}
+	sessions := []int{1}
+	elements := []int{1, 2, 4, 8, 16, 32, 64, 128, 256}
+	existingItems := []int{0}
 
 	var wg sync.WaitGroup
 	counter = 0
 
+	// save changes to config file for graph generating
+	f, err := os.Create("./config.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
 	for _, existingItem := range existingItems {
 		for _, numberOfSessions := range sessions {
+			fmt.Fprintf(f, "[%s]\n", "example")
 			fmt.Printf("\n\n\tset item with  %d connections and %d existing items", numberOfSessions, existingItem)
 			fmt.Printf("\n%-32s| %-15s | %-10s\n", "Operation", "number of items", "total time")
 			fmt.Printf("-------------------------------------------------------------------\n")
+			fmt.Fprintf(f, "x: %v\n", strings.Replace(fmt.Sprintf("%v", elements), " ", ",", -1))
+			var y_axis []float64
 			for _, element := range elements {
 				cleanDatastore()
 				fillDatastore(existingItem)
@@ -167,7 +179,12 @@ func main() {
 				wg.Wait()
 				elapsed := time.Since(start)
 				fmt.Printf("%-32s| %-15d | %-10s\n", "set", element, elapsed)
+				y_axis = append(y_axis, elapsed.Seconds())
+				time.Sleep(200 * time.Millisecond)
 			}
+			fmt.Fprintf(f, "y: %v\n", strings.Replace(fmt.Sprintf("%v", y_axis), " ", ", ", -1))
+			fmt.Fprintf(f, "color: -b\n")
+			fmt.Fprintf(f, "label: set items\n")
 		}
 	}
 }
