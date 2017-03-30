@@ -52,7 +52,51 @@ entries in a request.
 | set | 29.828248 | 16.202555 | 16.617822 | 26.491454 | 37.980052 | 27.7456426667 | 28.38218 | 48.7050303333 | 92.3466303333 | 177.184213 | 454.813572 | 1420.526593 |
 | get | 1.768185 | 2.171163 | 3.31087833333 | 5.640741 | 10.9224743333 | 24.0813563333 | 55.6608143333 | 149.439873 | 490.498112333 | 1818.744884 | 6598.24484633 | 26037.3821507 |
 | delete | 22.651006 | 38.064887 | 29.2917696667 | 15.553244 | 20.807633 | 29.351339 | 38.4092673333 | 49.784648 | 108.831738333 | 373.296678 | 1397.51568633 | 5476.05380733 |
- 
+
+The set action run's the command.
+```
+<edit-config>
+	<target><running/></target>
+	<config>
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+			<interface>
+				<name>eth0</name>
+				<enabled>true</enabled>
+			</interface>
+		</interfaces>
+	</config>
+</edit-config>
+```
+
+The get action run's the command.
+```
+<get-config>
+	<source><running/></source>
+	<filter>
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+			<interface>
+				<name>eth0</name>
+				<enabled></enabled>
+			</interface>
+		</interfaces>
+	</filter>
+</get-config>
+```
+
+The delete action run's the command.
+```
+<edit-config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+	<target><running/></target>
+	<config>
+		<interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+			<interface nc:operation='delete'>
+				<name>eth0</name>
+			</interface>
+		</interfaces>
+	</config>
+</edit-config>
+```
+
 It is observable that performance of getting leaves is deteriorating fastest
 while setting is most stable operation and delete is in
 between.
